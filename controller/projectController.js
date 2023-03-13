@@ -30,13 +30,23 @@ module.exports={
             res.send(result)
         }
     },applyForProject:async(req,res)=>{
-        let find=await Project.update({status:"Pending",userId:req.user.dataValues.id},{where:{id:req.params.id}})
-       
-        if(!find){
-            res.send("Could Not find anything")
-        }else{
-            res.send("Added a task")
+        try {
+            let check=await Project.findOne({where:{id:req.params.id}})
+            console.log(check.status);
+           
+
+            
+            if(check.status=="Not Yet Started"){
+                let find=await Project.update({status:"Pending",userId:req.user.dataValues.id},{where:{id:req.params.id}})
+                res.send("Added A Task")
+            }else{
+                res.send("Already Completed by a user")
+            }
+        } catch (error) {
+            res.send(error)
+            console.log(error);
         }
+       
     },showAllPending:async(req,res)=>{
         let find=await Project.findAll({where:{userId:req.user.dataValues.id,status:"Pending"}})
         if(!find){
@@ -53,13 +63,13 @@ module.exports={
             endTime.setHours(hours);
             endTime.setMinutes(minutes);
             endTime.setSeconds(seconds);
-            if(endTime<new Date()){
-                await Project.update({status:"Completed",userId:req.user.dataValues.id},{where:{id:req.params.id}})
+            if(endTime>new Date()){
+                await Project.update({status:"Completed",remarks:"Good",userId:req.user.dataValues.id},{where:{id:req.params.id}})
                 res.send("Completed")
              
             }else{
-            await Project.update({status:"Delayed",userId:req.user.dataValues.id},{where:{id:req.params.id}})
-            res.send("Completed")
+            await Project.update({status:"Delayed",remarks:"Bad",userId:req.user.dataValues.id},{where:{id:req.params.id}})
+            res.send("Delayed")
             }
         } catch (error) {
             res.send("Some error occured")
@@ -68,6 +78,9 @@ module.exports={
        
     },getAllDelayed:async(req,res)=>{
         let result=await Project.findAll({where:{userId:req.user.dataValues.id,status:"Delayed"}})
+        res.send(result)
+    },getAllCompleted:async(req,res)=>{
+        let result=await Project.findAll({where:{userId:req.user.dataValues.id,status:"Completed"}})
         res.send(result)
     }
 }

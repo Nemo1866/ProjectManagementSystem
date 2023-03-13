@@ -21,6 +21,9 @@ allowNull:false
         type:DataTypes.ENUM,
         values:["Not Yet Started","Pending","Completed","Delayed"],
         allowNull:false
+    },remarks:{
+        type:DataTypes.ENUM,
+        values:["Good","Bad"]
     }
 },{
     timestamps:false

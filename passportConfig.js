@@ -4,22 +4,28 @@ const { Admin, User } = require("./connection")
 
 exports.PassportInitialize=(passport)=>{
 passport.use(new LocalStrategy({usernameField:"email",passwordField:"password"},async function(email,password,done){
-    let user=null
-    let admin=await Admin.findOne({where:{email}})
-    let ss=await User.findOne({where:{email}})
-    if(admin){
-        user=admin
-    }else{
-        user=ss
+    try {
+        let user=null
+        let admin=await Admin.findOne({where:{email}})
+        let ss=await User.findOne({where:{email}})
+        if(admin){
+            user=admin
+        }else{
+            user=ss
+        }
+        if(!user){
+            done("Email Address Does Not Exist",false)
+        }
+        let hashpassword=await compare(password,user.password)
+        if(!hashpassword){
+            done("Password Not Match",false)
+        }
+        done(null,user) 
+    } catch (error) {
+        
+        done(error,false)
     }
-    if(!user){
-        done("Email Address Does Not Exist",false)
-    }
-    let hashpassword=await compare(password,user.password)
-    if(!hashpassword){
-        done("Password Not Match",false)
-    }
-    done(null,user)
+  
 }))
 
 passport.serializeUser((user,done)=>{

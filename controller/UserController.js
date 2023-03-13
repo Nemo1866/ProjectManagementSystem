@@ -1,5 +1,6 @@
 const { User } = require("../connection")
 
+
 module.exports={
     RegisterUser:async(req,res)=>{
         let {fullname,email,password}=req.body
